@@ -1,31 +1,64 @@
-use plotters::prelude::*;
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let root = BitMapBackend::new("0.png", (640, 480)).into_drawing_area();
-    root.fill(&WHITE)?;
-    let mut chart = ChartBuilder::on(&root)
-        .caption("y=x^2", ("sans-serif", 50).into_font())
-        .margin(5)
-        .x_label_area_size(30)
-        .y_label_area_size(30)
-        .build_cartesian_2d(-1f32..1f32, -0.1f32..1f32)?;
+use egui::Ui;
 
-    chart.configure_mesh().draw()?;
+use eframe::egui;
 
-    chart
-        .draw_series(LineSeries::new(
-            (-50..=50).map(|x| x as f32 / 50.0).map(|x| (x, x * x)),
-            &RED,
-        ))?
-        .label("y = x^2")
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+fn main() {
+    let native_options = eframe::NativeOptions::default();
+    eframe::run_native(
+        "My egui App",
+        native_options,
+        Box::new(|cc| Box::new(MyEguiApp::new(cc))),
+    );
+}
 
-    chart
-        .configure_series_labels()
-        .background_style(&WHITE.mix(0.8))
-        .border_style(&BLACK)
-        .draw()?;
+#[derive(Default)]
+struct MyEguiApp {}
 
-    root.present()?;
+impl MyEguiApp {
+    fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+        // Customize egui here with cc.egui_ctx.set_fonts and cc.egui_ctx.set_visuals.
+        // Restore app state using cc.storage (requires the "persistence" feature).
+        // Use the cc.gl (a glow::Context) to create graphics shaders and buffers that you can use
+        // for e.g. egui::PaintCallback.
+        Self::default()
+    }
+}
 
-    Ok(())
+impl eframe::App for MyEguiApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(&ctx, |ui| {
+            plot(ui);
+        });
+    }
+}
+
+fn plot(ui: &mut Ui) {
+    use egui_plot::{Line, PlotPoints};
+    let n = 128;
+    let sin = Line::new(
+        (0..=n)
+            .map(|i| {
+                use std::f64::consts::TAU;
+                let x = egui::remap(i as f64, 0.0..=n as f64, -TAU..=TAU);
+                [x, x.sin()]
+            })
+            .collect::<PlotPoints>(),
+    );
+    let cos = Line::new(
+        (0..=n)
+            .map(|i| {
+                use std::f64::consts::TAU;
+                let x = egui::remap(i as f64, 0.0..=n as f64, -TAU..=TAU);
+                [x, x.cos()]
+            })
+            .collect::<PlotPoints>(),
+    );
+    egui_plot::Plot::new("example_plot")
+        .show_axes(true)
+        .data_aspect(1.0)
+        .show(ui, |plot_ui| {
+            plot_ui.line(sin);
+            plot_ui.line(cos)
+        })
+        .response;
 }
