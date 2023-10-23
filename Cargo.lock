@@ -650,15 +650,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "desmos"
-version = "0.1.0"
-dependencies = [
- "eframe",
- "egui",
- "egui_plot",
-]
-
-[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1360,6 +1351,15 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "mitrella"
+version = "0.1.0"
+dependencies = [
+ "eframe",
+ "egui",
+ "egui_plot",
 ]
 
 [[package]]
