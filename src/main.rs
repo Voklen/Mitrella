@@ -15,7 +15,9 @@ fn main() {
 }
 
 #[derive(Default)]
-struct MitrellaApp {}
+struct MitrellaApp {
+    equations: Vec<String>,
+}
 
 impl MitrellaApp {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
@@ -27,6 +29,14 @@ impl MitrellaApp {
 
 impl eframe::App for MitrellaApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::SidePanel::left("equations_panel").show(ctx, |ui| {
+            if ui.button("Add equation").clicked() {
+                self.equations.push(String::new())
+            }
+            for equation in &mut self.equations {
+                ui.text_edit_singleline(equation);
+            }
+        });
         egui::CentralPanel::default().show(&ctx, |ui| {
             let equations = vec![|x: f64| x.sin(), |x: f64| x.cos()];
             plotting::plot(ui, equations);
