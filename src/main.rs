@@ -1,3 +1,4 @@
+mod equations;
 mod plotting;
 
 use eframe::egui;
@@ -16,7 +17,7 @@ fn main() {
 
 #[derive(Default)]
 struct MitrellaApp {
-    equations: Vec<String>,
+    equations: equations::Equations,
 }
 
 impl MitrellaApp {
@@ -29,17 +30,20 @@ impl MitrellaApp {
 
 impl eframe::App for MitrellaApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let equations = &mut self.equations;
         egui::SidePanel::left("equations_panel").show(ctx, |ui| {
             if ui.button("Add equation").clicked() {
-                self.equations.push(String::new())
+                equations.push(String::new())
             }
-            for equation in &mut self.equations {
-                ui.text_edit_singleline(equation);
+            for index in 0..equations.len() {
+                let text_edit = &ui.text_edit_singleline(&mut equations.strings[index]);
+                if text_edit.changed() {
+                    equations.update_func(index);
+                };
             }
         });
         egui::CentralPanel::default().show(&ctx, |ui| {
-            let equations = vec![|x: f64| x.sin(), |x: f64| x.cos()];
-            plotting::plot(ui, equations);
+            plotting::plot(ui, &equations.functions);
         });
     }
 }
