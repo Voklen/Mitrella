@@ -1,4 +1,5 @@
 mod equations;
+mod parser;
 mod plotting;
 
 use eframe::egui;
