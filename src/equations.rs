@@ -3,7 +3,7 @@ use crate::parser::parse_equation;
 #[derive(Default)]
 pub struct Equations {
     pub strings: Vec<String>,
-    pub functions: Vec<Option<Box<dyn Fn(f64) -> f64>>>,
+    pub functions: Vec<Box<dyn Fn(f64) -> Option<f64>>>,
 }
 
 impl Equations {
@@ -13,7 +13,7 @@ impl Equations {
 
     pub fn push(&mut self, string: String) {
         self.strings.push(string);
-        self.functions.push(None);
+        self.functions.push(Box::new(|_| None));
     }
 
     pub fn update_func(&mut self, index: usize) {

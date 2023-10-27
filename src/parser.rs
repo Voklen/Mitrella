@@ -16,7 +16,7 @@ impl<T> Stack<T> {
     }
 }
 
-pub fn parse_equation(equation: &str) -> Option<Box<dyn Fn(f64) -> f64>> {
+pub fn parse_equation(equation: &str) -> Box<dyn Fn(f64) -> Option<f64>> {
     let actual = equation.to_owned();
     let func = move |x: f64| {
         let tokens = actual.split_whitespace();
@@ -27,32 +27,32 @@ pub fn parse_equation(equation: &str) -> Option<Box<dyn Fn(f64) -> f64>> {
             };
             match token {
                 "+" => {
-                    let sum = stack.pop().unwrap() + stack.pop().unwrap();
+                    let sum = stack.pop()? + stack.pop()?;
                     stack.push(sum);
                 }
                 "-" => {
-                    let not_sum = stack.pop().unwrap() - stack.pop().unwrap();
+                    let not_sum = stack.pop()? - stack.pop()?;
                     stack.push(not_sum);
                 }
                 "*" => {
-                    let product = stack.pop().unwrap() + stack.pop().unwrap();
+                    let product = stack.pop()? * stack.pop()?;
                     stack.push(product);
                 }
                 "/" => {
-                    let quotient = stack.pop().unwrap() + stack.pop().unwrap();
+                    let quotient = stack.pop()? / stack.pop()?;
                     stack.push(quotient);
                 }
                 "x" => stack.push(x),
-                _ => {}
+                _ => return None,
             }
         }
-        return stack.pop().unwrap_or(1.0);
+        return stack.pop();
     };
-    Some(Box::new(func))
+    Box::new(func)
 }
 
 #[test]
 fn monadic() {
-    let result = parse_equation("2 x +").unwrap();
-    assert_eq!(result(1.0), 3.0);
+    let result = parse_equation("2 x +");
+    assert_eq!(result(1.0), Some(3.0));
 }
