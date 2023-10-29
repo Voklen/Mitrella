@@ -1,3 +1,5 @@
+use std::f64::consts;
+
 struct Stack {
     stack: Vec<f64>,
 }
@@ -24,6 +26,38 @@ macro_rules! closure {
     };
 }
 
+macro_rules! monadic {
+    ($input: expr) => {
+        closure!(|_x, stack: &mut Stack| {
+            let top = stack.pop()?;
+            let output = $input(top);
+            stack.push(output);
+            Some(())
+        })
+    };
+}
+
+macro_rules! dyadic {
+    ($input: expr) => {
+        closure!(|_x, stack: &mut Stack| {
+            let top = stack.pop()?;
+            let second = stack.pop()?;
+            let output = $input(top, second);
+            stack.push(output);
+            Some(())
+        })
+    };
+}
+
+macro_rules! push {
+    ($input: expr) => {
+        closure!(|_x, stack: &mut Stack| {
+            stack.push($input);
+            Some(())
+        })
+    };
+}
+
 pub fn parse_equation(equation: &str) -> Box<dyn Fn(f64) -> Option<f64>> {
     let actual = equation.to_owned();
     let tokens = actual.split_whitespace();
@@ -40,6 +74,7 @@ fn run_stack_funcs(x: f64, funcs: &Vec<StackFunc>) -> Option<f64> {
     return stack.pop();
 }
 
+/// This parses a token and returns a function that modifies the stack as that token would
 fn to_funcs(token: &str) -> Option<StackFunc> {
     if let Ok(num) = token.parse::<i64>() {
         return closure!(move |_x, stack: &mut Stack| {
@@ -48,27 +83,40 @@ fn to_funcs(token: &str) -> Option<StackFunc> {
         });
     };
     match token {
-        "+" => closure!(|_x, stack: &mut Stack| {
-            let sum = stack.pop()? + stack.pop()?;
-            stack.push(sum);
-            Some(())
-        }),
-        "-" => closure!(|_x, stack: &mut Stack| {
-            let not_sum = stack.pop()? - stack.pop()?;
-            stack.push(not_sum);
-            Some(())
-        }),
-        "*" => closure!(|_x, stack: &mut Stack| {
-            let product = stack.pop()? * stack.pop()?;
-            stack.push(product);
-            Some(())
-        }),
-        "/" => closure!(|_x, stack: &mut Stack| {
-            let quotient = stack.pop()? / stack.pop()?;
-            stack.push(quotient);
-            Some(())
-        }),
-        "x" => closure!(|x: f64, stack: &mut Stack| {
+        // Operators
+        "+" => dyadic!(|top, second| second + top),
+        "-" => dyadic!(|top, second| second - top),
+        "*" => dyadic!(|top, second| second * top),
+        "/" => dyadic!(|top, second| second / top),
+        "◿" => dyadic!(|top, second: f64| second.powf(top)),
+        "^" => dyadic!(|top, second: f64| second.powf(top)),
+        "◺" => dyadic!(|top: f64, second| top.powf(1.0 / second)),
+        "root" => dyadic!(|top: f64, second| top.powf(1.0 / second)),
+        "▽" => dyadic!(|top: f64, second| top.log(second)),
+        "log" => dyadic!(|top: f64, second| top.log(second)),
+        "abs" => monadic!(|top: f64| top.abs()),
+        "sin" => monadic!(|top: f64| top.sin()),
+        "cos" => monadic!(|top: f64| top.cos()),
+        "tan" => monadic!(|top: f64| top.tan()),
+        "asin" => monadic!(|top: f64| top.asin()),
+        "acos" => monadic!(|top: f64| top.acos()),
+        "atan" => monadic!(|top: f64| top.atan()),
+        "sinh" => monadic!(|top: f64| top.sinh()),
+        "cosh" => monadic!(|top: f64| top.cosh()),
+        "tanh" => monadic!(|top: f64| top.tanh()),
+        "asinh" => monadic!(|top: f64| top.asinh()),
+        "acosh" => monadic!(|top: f64| top.acosh()),
+        "atanh" => monadic!(|top: f64| top.atanh()),
+
+        // Constants
+        "e" => push!(consts::E),
+        "π" => push!(consts::PI),
+        "pi" => push!(consts::PI),
+        "τ" => push!(consts::TAU),
+        "tau" => push!(consts::TAU),
+
+        // Miscellaneous
+        "x" => closure!(|x, stack: &mut Stack| {
             stack.push(x);
             Some(())
         }),
