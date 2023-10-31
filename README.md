@@ -18,6 +18,20 @@ Note that subtraction (and division) subtracts the item on the top of the stack 
 -1
 ```
 
+Note that there is no limit to the number of items on the stack and don't have to be operated on instantly, so
+```
+2 3 + 4 +
+-----
+9
+```
+is equivilent to
+```
+2 3 4 + +
+-----
+9
+```
+just like `(2 + 3) + 4 = 2 + (3 + 4)`, speaking of which…
+
 There is no order of operations, by reading from left to right and using the stack you can unambiguously determine what a expression evaluates to.
 ```
 4 5 * 10 / 6 3 - +
