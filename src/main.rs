@@ -2,7 +2,8 @@ mod equations;
 mod parser;
 mod plotting;
 
-use eframe::egui;
+use eframe::egui::*;
+use equations::Equations;
 
 fn main() {
 	let native_options = eframe::NativeOptions::default();
@@ -18,7 +19,7 @@ fn main() {
 
 #[derive(Default)]
 struct MitrellaApp {
-	equations: equations::Equations,
+	equations: Equations,
 }
 
 impl MitrellaApp {
@@ -30,21 +31,31 @@ impl MitrellaApp {
 }
 
 impl eframe::App for MitrellaApp {
-	fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+	fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
 		let equations = &mut self.equations;
-		egui::SidePanel::left("equations_panel").show(ctx, |ui| {
-			if ui.button("Add equation").clicked() {
-				equations.push(String::new())
-			}
-			for index in 0..equations.len() {
-				let text_edit = &ui.text_edit_singleline(&mut equations.strings[index]);
-				if text_edit.changed() {
-					equations.update_func(index);
-				};
-			}
-		});
-		egui::CentralPanel::default().show(&ctx, |ui| {
+		SidePanel::left("equations_panel")
+			.default_width(200.0)
+			.show(ctx, |ui| {
+				ui.with_layout(Layout::top_down_justified(Align::Center), |ui| {
+					ScrollArea::vertical().show(ui, |ui| {
+						equations_panel(ui, equations);
+					});
+				});
+			});
+		CentralPanel::default().show(&ctx, |ui| {
 			plotting::plot(ui, &equations.functions);
 		});
+	}
+}
+
+fn equations_panel(ui: &mut Ui, equations: &mut Equations) {
+	if ui.button("Add equation").clicked() {
+		equations.push(String::new())
+	}
+	for index in 0..equations.len() {
+		let text_edit = &ui.text_edit_singleline(&mut equations.strings[index]);
+		if text_edit.changed() {
+			equations.update_func(index);
+		};
 	}
 }
