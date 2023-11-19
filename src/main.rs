@@ -53,8 +53,9 @@ fn equations_panel(ui: &mut Ui, equations: &mut Equations) {
 		equations.push(String::new())
 	}
 	for index in 0..equations.len() {
-		let text_edit = &ui.text_edit_singleline(&mut equations.strings[index]);
-		if text_edit.changed() {
+		let text_edit = TextEdit::singleline(&mut equations.strings[index]);
+		let responce = text_edit.margin(vec2(4.0, 16.0)).ui(ui);
+		if responce.changed() {
 			equations.update_func(index);
 		};
 	}
