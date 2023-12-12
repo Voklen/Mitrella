@@ -2,6 +2,10 @@
 
 This is a graphing calculator, inspired by desmos (great tool, [check it out](https://www.desmos.com/calculator)) but using my own stack-based mathematical notation.
 
+![Screenshot showing sin, asin, and 1/sin](mitrella.png)
+
+## Notation
+
 Read from left to right, each element is seperated by a space, an number or variable on it's own will add it to the stack. Operators pop items from the stack and then push their results to the top of the stack.
 
 In this example, 2 is added to the stack, then 3 is added to the stack. The addition operator(+) pops the top 2 items of the stack, sums them, and then pushes the result.
