@@ -11,7 +11,7 @@ pub fn plot(ui: &mut Ui, equations: &[impl Fn(f64) -> Option<f64>]) {
 		.response;
 }
 
-fn to_line(equation: impl Fn(f64) -> Option<f64>) -> Line {
+fn to_line<'a>(equation: impl Fn(f64) -> Option<f64>) -> Line<'a> {
 	let total_points = 16384;
 	let plot_point = |n| {
 		let x = egui::remap(n as f64, 0.0..=total_points as f64, -1024.0..=1024.0);
@@ -24,7 +24,7 @@ fn to_line(equation: impl Fn(f64) -> Option<f64>) -> Line {
 	Line::new(points)
 }
 
-fn build_plot(plot_ui: &mut PlotUi, lines: impl Iterator<Item = Line>) {
+fn build_plot<'a>(plot_ui: &mut PlotUi<'a>, lines: impl Iterator<Item = Line<'a>>) {
 	for line in lines {
 		plot_ui.line(line);
 	}

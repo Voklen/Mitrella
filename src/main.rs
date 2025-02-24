@@ -10,7 +10,7 @@ fn main() {
 	let res = eframe::run_native(
 		"Mitrella",
 		native_options,
-		Box::new(|cc| Box::new(MitrellaApp::new(cc))),
+		Box::new(|cc| Ok(Box::new(MitrellaApp::new(cc)))),
 	);
 	if let Err(e) = res {
 		eprintln!("{e}");
